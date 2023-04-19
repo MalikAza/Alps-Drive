@@ -14,7 +14,10 @@ app.get('/api/drive/:name', async (request, result) => {
   const name = request.params.name
   const nameInfos = await getItemSubFolderInfos(`${__dirname}/drive/${name}`)
 
-  result.status(200).json(nameInfos)
+  nameInfos ? result.status(200).json(nameInfos)
+  : result.status(404).json({
+    "message": "This path does not exists."
+  })
 })
 
 // app.post('/api/stuff', (req, res, next) => {
