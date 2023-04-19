@@ -1,6 +1,6 @@
 const fs = require('fs')
 
-async function _getItemInfos(item) {
+async function _getItemInfos(path, item) {
     // Defaults (folder) atrbs
     let infos = {
         name: item.name,
@@ -9,7 +9,7 @@ async function _getItemInfos(item) {
     // File atrbs
     if (!item.isDirectory()) {
         infos.isFolder = false
-        infos.size = (await fs.promises.stat(`${__dirname}/drive/${item.name}`)).size
+        infos.size = (await fs.promises.stat(path + item.name)).size
     }
     
     return infos
@@ -27,7 +27,7 @@ async function getDriveInfos() {
     let infos = []
     const items = await fs.promises.readdir('./drive', {withFileTypes: true})
     await Promise.all(items.map(async (fd) => {
-        return infos.push(await _getItemInfos(fd))
+        return infos.push(await _getItemInfos(`${__dirname}/drive/`, fd))
     }))
 
     return infos
