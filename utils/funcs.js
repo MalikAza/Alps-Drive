@@ -1,8 +1,8 @@
 const fs = require('fs')
 
 function noSuchFileOrDirectoryError(error) {
-    if (error.message.includes('ENOENT: no such file or directory')) return true
-    return false
+  if (error.message.includes('ENOENT: no such file or directory')) return true
+  return false
 }
 
 /**
@@ -19,18 +19,18 @@ function noSuchFileOrDirectoryError(error) {
  * item is a file, the object also includes its size.
  */
 async function _getItemInfos(path, item) {
-    // Defaults (folder) atrbs
-    let itemInfos = {
-        name: item.name,
-        isFolder: true
-    }
-    // File atrbs
-    if (!item.isDirectory()) {
-        itemInfos.isFolder = false
-        itemInfos.size = (await fs.promises.stat(`${path}/${item.name}`)).size
-    }
-    
-    return itemInfos
+  // Defaults (folder) atrbs
+  let itemInfos = {
+      name: item.name,
+      isFolder: true
+  }
+  // File atrbs
+  if (!item.isDirectory()) {
+      itemInfos.isFolder = false
+      itemInfos.size = (await fs.promises.stat(`${path}/${item.name}`)).size
+  }
+  
+  return itemInfos
 }
 
 /**
@@ -42,14 +42,14 @@ async function _getItemInfos(path, item) {
  * and size.
  */
 async function getFolderInfos(folderPath) {
-    let folderInfos = []
+  let folderInfos = []
 
-    const items = await fs.promises.readdir(`${folderPath}`, {withFileTypes: true})
-    await Promise.all(items.map(async (fd) => {
-        return folderInfos.push(await _getItemInfos(`${folderPath}`, fd))
-    }))
+  const items = await fs.promises.readdir(`${folderPath}`, {withFileTypes: true})
+  await Promise.all(items.map(async (fd) => {
+      return folderInfos.push(await _getItemInfos(`${folderPath}`, fd))
+  }))
 
-    return folderInfos
+  return folderInfos
 }
 
 /**
@@ -63,10 +63,14 @@ async function getFolderInfos(folderPath) {
  * is a directory).
  */
 async function getItemSubFolderInfos(itemPath) {
-    const item = fs.lstatSync(itemPath)
-    
-    if (!item.isDirectory()) return ['application/octet-stream', fs.readFileSync(itemPath, 'utf-8')]
-    else return ['application/json', await getFolderInfos(itemPath)]
+  const item = fs.lstatSync(itemPath)
+  
+  if (!item.isDirectory()) return ['application/octet-stream', fs.readFileSync(itemPath, 'utf-8')]
+  else return ['application/json', await getFolderInfos(itemPath)]
 }
 
-module.exports = { getFolderInfos, getItemSubFolderInfos, noSuchFileOrDirectoryError } 
+module.exports = {
+  getFolderInfos,
+  getItemSubFolderInfos,
+  noSuchFileOrDirectoryError
+} 

@@ -7,6 +7,7 @@ const internalServerErrorJson = { "message": "Internal Server Error" }
 
 const app = express()
 app.use(express.static('frontend'))
+app.use(express.json())
 
 app.get('/api/drive', async (request, response) => {
   response.set('Content-Type', 'application/json')
@@ -37,12 +38,5 @@ app.get('/api/drive/:name', async (request, response) => {
     else response.status(500).json(internalServerErrorJson)
   }
 })
-
-// app.post('/api/stuff', (req, res, next) => {
-//   console.log(req.body);
-//   res.status(201).json({
-//     message: 'Objet créé !'
-//   });
-// });
 
 module.exports = app
