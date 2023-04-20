@@ -7,27 +7,31 @@ const internalServerErrorJson = { "message": "Internal Server Error" }
 const app = express()
 app.use(express.static('frontend'))
 
-app.get('/api/drive', async (request, result) => {
+app.get('/api/drive', async (request, response) => {
+  response.set('Content-Type', 'application/json')
+
   try {
     const driveInfos = await utilsFuncs.getFolderInfos(`${__dirname}/drive`)
 
-    result.status(200).json(driveInfos)
+    response.status(200).json(driveInfos)
   } catch (error) {
-    if (utilsFuncs.noSuchFileOrDirectoryError(error)) result.status(404).json(pathDoesntExistsJson)
-    else result.status(500).json(internalServerErrorJson)
+    if (utilsFuncs.noSuchFileOrDirectoryError(error)) response.status(404).json(pathDoesntExistsJson)
+    else response.status(500).json(internalServerErrorJson)
   }
   
 })
 
-app.get('/api/drive/:name', async (request, result) => {
+app.get('/api/drive/:name', async (request, response) => {
+  response.set('Content-Type', 'application/json')
   const name = request.params.name
+  
   try {
     const nameInfos = await utilsFuncs.getItemSubFolderInfos(`${__dirname}/drive/${name}`)
-    
-    result.status(200).json(nameInfos)
+
+    response.status(200).json(nameInfos)
   } catch (error) {
-    if (utilsFuncs.noSuchFileOrDirectoryError(error)) result.status(404).json(pathDoesntExistsJson)
-    else result.status(500).json(internalServerErrorJson)
+    if (utilsFuncs.noSuchFileOrDirectoryError(error)) response.status(404).json(pathDoesntExistsJson)
+    else response.status(500).json(internalServerErrorJson)
   }
 })
 
