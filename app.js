@@ -22,13 +22,15 @@ app.get('/api/drive', async (request, response) => {
 })
 
 app.get('/api/drive/:name', async (request, response) => {
-  response.set('Content-Type', 'application/json')
   const name = request.params.name
   
   try {
-    const nameInfos = await utilsFuncs.getItemSubFolderInfos(`${__dirname}/drive/${name}`)
+    const [contentType, nameInfos] = await utilsFuncs.getItemSubFolderInfos(`${__dirname}/drive/${name}`)
 
-    response.status(200).json(nameInfos)
+    response
+      .status(200)
+      .set('Content-Type', contentType)
+      .send(nameInfos)
   } catch (error) {
     if (utilsFuncs.noSuchFileOrDirectoryError(error)) response.status(404).json(pathDoesntExistsJson)
     else response.status(500).json(internalServerErrorJson)

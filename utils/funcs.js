@@ -53,20 +53,20 @@ async function getFolderInfos(folderPath) {
 }
 
 /**
- * This function returns information about a file or folder, including its contents if it is a file.
+ * This function checks if a given item path is a directory or not, and returns either the file content
+ * or folder information accordingly.
  * @param itemPath - The parameter `itemPath` is a string representing the path of a file or folder in
- * the file system. It is used as input to the `fs.lstatSync()` method to get information about the
- * item. If the item is a file, its content is read using `fs.readFileSync()`.
- * @returns If the item at the given `itemPath` is not a directory, then an object with a `content`
- * property is returned, which contains the contents of the file at `itemPath` in UTF-8 encoding. If
- * the item is a directory, then the function `getFolderInfos` is called with `itemPath` as an
- * argument, and the result of that function call is returned.
+ * the file system.
+ * @returns A tuple containing two values: a string representing the content type
+ * ('application/octet-stream' or 'application/json') and either the contents of the file as a string
+ * (if the item is not a directory) or the result of calling the `getFolderInfos` function (if the item
+ * is a directory).
  */
 async function getItemSubFolderInfos(itemPath) {
     const item = fs.lstatSync(itemPath)
     
-    if (!item.isDirectory()) return {"content": fs.readFileSync(itemPath, 'utf-8')}
-    else return await getFolderInfos(itemPath)
+    if (!item.isDirectory()) return ['application/octet-stream', fs.readFileSync(itemPath, 'utf-8')]
+    else return ['application/json', await getFolderInfos(itemPath)]
 }
 
-module.exports = { getFolderInfos, getItemSubFolderInfos, noSuchFileOrDirectoryError }
+module.exports = { getFolderInfos, getItemSubFolderInfos, noSuchFileOrDirectoryError } 
