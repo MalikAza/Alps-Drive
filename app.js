@@ -27,6 +27,14 @@ app.get('/api/drive', async (_, response) => {
     .json(driveInfos)
 })
 
+app.delete('/api/drive/:name', (request, response) => {
+  const name = request.params.name
+
+  if (!fs.existsSync(path.join(os.tmpdir(), name))) return utilsFuncs.doesNotExistsResponse(response, 'folder')
+
+  utilsFuncs.deleteFolder(response, os.tmpdir(), name)
+})
+
 app.post('/api/drive/:folder', (request, response) => {
   const folder = request.params.folder
   const name = request.query.name
@@ -50,6 +58,17 @@ app.get('/api/drive/:name', async (request, response) => {
     .set('Content-Type', contentType)
     .status(200)
     .send(nameInfos)
+})
+
+app.delete('/api/drive/:folder/:name', (request, response) => {
+  const folder = request.params.folder
+  const name = request.params.name
+  const folderPath = path.join(os.tmpdir(), folder)
+
+  if (!fs.existsSync(folderPath)) return utilsFuncs.doesNotExistsResponse(response, 'folder')
+  if (!fs.existsSync(path.join(folderPath, name))) return utilsFuncs.doesNotExistsResponse(response, 'folder')
+
+  utilsFuncs.deleteFolder(response, folderPath, name)
 })
 
 module.exports = app

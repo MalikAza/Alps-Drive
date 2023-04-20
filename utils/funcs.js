@@ -37,13 +37,20 @@ async function getItemSubFolderInfos(itemPath) {
 }
 
 function createFolder(response, currentPath, name) {
-  if (!alphaNumericRegEx.test(name)) return response.status(400).send(
-    "The folder's name is not valid. It must be alpha-numeric."
-  )
+  if (!alphaNumericRegEx.test(name)) return notAlphaNumResponse(response, name)
 
   fs.mkdirSync(path.join(currentPath, name))
   response.status(201).json({
     "message": "Folder perfetcly created."
+  })
+}
+
+function deleteFolder(response, currentPath, name) {
+  if (!alphaNumericRegEx.test(name)) return notAlphaNumResponse(response, name)
+
+  fs.rmSync(path.join(currentPath, name), { recursive: true, force: true })
+  response.status(200).json({
+    "message": "Folder perfectly deleted."
   })
 }
 
@@ -59,10 +66,17 @@ function alreadyExistsResponse(response, type) {
   )
 }
 
+function notAlphaNumResponse(response, name) {
+  if (!alphaNumericRegEx.test(name)) return response.status(400).send(
+    "The folder's name is not valid. It must be alpha-numeric."
+  )
+}
+
 module.exports = {
   getFolderInfos,
   getItemSubFolderInfos,
   createFolder,
   doesNotExistsResponse,
-  alreadyExistsResponse
+  alreadyExistsResponse,
+  deleteFolder
 } 
