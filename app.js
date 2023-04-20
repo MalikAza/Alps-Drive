@@ -8,6 +8,15 @@ const app = express()
 app.use(express.static('frontend'))
 app.use(express.json())
 
+app.post('/api/drive', (request, response) => {
+  const name = request.query.name
+  const folderPath = path.join(os.tmpdir(), name)
+
+  if (fs.existsSync(folderPath)) return utilsFuncs.alreadyExistsResponse(response, 'folder')
+  
+  utilsFuncs.createFolder(response, os.tmpdir(), name)
+})
+
 app.get('/api/drive', async (_, response) => {
 
   const driveInfos = await utilsFuncs.getFolderInfos(`${os.tmpdir()}`)
@@ -18,13 +27,15 @@ app.get('/api/drive', async (_, response) => {
     .json(driveInfos)
 })
 
-app.post('/api/drive', (request, response) => {
+app.post('/api/drive/:folder', (request, response) => {
+  const folder = request.params.folder
   const name = request.query.name
-  const folderPath = path.join(os.tmpdir(), name)
-
-  if (fs.existsSync(folderPath)) return utilsFuncs.alreadyExistsResponse(response, 'folder')
+  const folderPath = path.join(os.tmpdir(), folder)
   
-  utilsFuncs.createFolder(response, os.tmpdir(), name)
+  if (!fs.existsSync(folderPath)) return utilsFuncs.doesNotExistsResponse(response, 'folder')
+  if (fs.existsSync(path.join(folderPath, name))) return utilsFuncs.alreadyExistsResponse(response, 'folder')
+
+  utilsFuncs.createFolder(response, folderPath, name)
 })
 
 app.get('/api/drive/:name', async (request, response) => {
@@ -39,17 +50,6 @@ app.get('/api/drive/:name', async (request, response) => {
     .set('Content-Type', contentType)
     .status(200)
     .send(nameInfos)
-})
-
-app.post('/api/drive/:folder', (request, response) => {
-  const folder = request.params.folder
-  const name = request.query.name
-  const folderPath = path.join(os.tmpdir(), folder)
-  
-  if (!fs.existsSync(folderPath)) return utilsFuncs.doesNotExistsResponse(response, 'folder')
-  if (fs.existsSync(path.join(folderPath, name))) return utilsFuncs.alreadyExistsResponse(response, 'folder')
-
-  utilsFuncs.createFolder(response, folderPath, name)
 })
 
 module.exports = app
