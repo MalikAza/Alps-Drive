@@ -1,5 +1,10 @@
 const fs = require('fs')
 
+function noSuchFileOrDirectoryError(error) {
+    if (error.message.includes('ENOENT: no such file or directory')) return true
+    return false
+}
+
 /**
  * This is an async function that retrieves information about a file or folder, such as its name, size,
  * and whether it is a folder or not.
@@ -48,26 +53,20 @@ async function getFolderInfos(folderPath) {
 }
 
 /**
- * This function returns information about a file or folder, including its content if it is a file.
- * @param itemPath - `itemPath` is a string parameter representing the path of a file or folder in the
- * file system. The function checks if the item at the given path is a file or a directory, and returns
- * its content if it's a file or recursively calls `getFolderInfos` function to get the content
- * @returns The function `getItemSubFolderInfos` returns an object with the property "content" that
- * contains the content of the file if the itemPath is a file, or it returns the result of the
- * `getFolderInfos` function if the itemPath is a directory. If the itemPath does not exist, it returns
- * `false`. If there is an error, it throws a new error with the message
+ * This function returns information about a file or folder, including its contents if it is a file.
+ * @param itemPath - The parameter `itemPath` is a string representing the path of a file or folder in
+ * the file system. It is used as input to the `fs.lstatSync()` method to get information about the
+ * item. If the item is a file, its content is read using `fs.readFileSync()`.
+ * @returns If the item at the given `itemPath` is not a directory, then an object with a `content`
+ * property is returned, which contains the contents of the file at `itemPath` in UTF-8 encoding. If
+ * the item is a directory, then the function `getFolderInfos` is called with `itemPath` as an
+ * argument, and the result of that function call is returned.
  */
 async function getItemSubFolderInfos(itemPath) {
-    try {
-        const item = fs.lstatSync(itemPath)
-        
-        if (!item.isDirectory()) return {"content": fs.readFileSync(itemPath, 'utf-8')}
-        else return await getFolderInfos(itemPath)
-    }
-    catch (error) {
-        if (error.message.includes('ENOENT: no such file or directory')) return false
-        else throw new Error('Something wrong happened', {cause: error})
-    }
+    const item = fs.lstatSync(itemPath)
+    
+    if (!item.isDirectory()) return {"content": fs.readFileSync(itemPath, 'utf-8')}
+    else return await getFolderInfos(itemPath)
 }
 
-module.exports = { getFolderInfos, getItemSubFolderInfos }
+module.exports = { getFolderInfos, getItemSubFolderInfos, noSuchFileOrDirectoryError }

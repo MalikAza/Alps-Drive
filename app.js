@@ -1,23 +1,34 @@
 const express = require('express')
-const { getFolderInfos, getItemSubFolderInfos } = require('./utils/funcs')
+const utilsFuncs = require('./utils/funcs')
+
+const pathDoesntExistsJson = { "message": "This path does not exists." }
+const internalServerErrorJson = { "message": "Internal Server Error" }
 
 const app = express()
 app.use(express.static('frontend'))
 
 app.get('/api/drive', async (request, result) => {
-  const driveInfos = await getFolderInfos(`${__dirname}/drive`)
+  try {
+    const driveInfos = await utilsFuncs.getFolderInfos(`${__dirname}/drive`)
 
-  result.status(200).json(driveInfos)
+    result.status(200).json(driveInfos)
+  } catch (error) {
+    if (utilsFuncs.noSuchFileOrDirectoryError(error)) result.status(404).json(pathDoesntExistsJson)
+    else result.status(500).json(internalServerErrorJson)
+  }
+  
 })
 
 app.get('/api/drive/:name', async (request, result) => {
   const name = request.params.name
-  const nameInfos = await getItemSubFolderInfos(`${__dirname}/drive/${name}`)
-
-  nameInfos ? result.status(200).json(nameInfos)
-  : result.status(404).json({
-    "message": "This path does not exists."
-  })
+  try {
+    const nameInfos = await utilsFuncs.getItemSubFolderInfos(`${__dirname}/drive/${name}`)
+    
+    result.status(200).json(nameInfos)
+  } catch (error) {
+    if (utilsFuncs.noSuchFileOrDirectoryError(error)) result.status(404).json(pathDoesntExistsJson)
+    else result.status(500).json(internalServerErrorJson)
+  }
 })
 
 // app.post('/api/stuff', (req, res, next) => {
