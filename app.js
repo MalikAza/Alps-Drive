@@ -1,5 +1,6 @@
 const express = require('express')
 const utilsFuncs = require('./utils/funcs')
+const os = require('os')
 
 const pathDoesntExistsJson = { "message": "This path does not exists." }
 const internalServerErrorJson = { "message": "Internal Server Error" }
@@ -11,7 +12,7 @@ app.get('/api/drive', async (request, response) => {
   response.set('Content-Type', 'application/json')
 
   try {
-    const driveInfos = await utilsFuncs.getFolderInfos(`${__dirname}/drive`)
+    const driveInfos = await utilsFuncs.getFolderInfos(`${os.tmpdir()}`)
 
     response.status(200).json(driveInfos)
   } catch (error) {
@@ -25,7 +26,7 @@ app.get('/api/drive/:name', async (request, response) => {
   const name = request.params.name
   
   try {
-    const [contentType, nameInfos] = await utilsFuncs.getItemSubFolderInfos(`${__dirname}/drive/${name}`)
+    const [contentType, nameInfos] = await utilsFuncs.getItemSubFolderInfos(`${os.tmpdir()}/${name}`)
 
     response
       .status(200)
