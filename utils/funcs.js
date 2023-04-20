@@ -1,5 +1,7 @@
 const fs = require('fs')
 
+const alphaNumericRegEx = new RegExp('^[a-zA-Z]+$')
+
 function noSuchFileOrDirectoryError(error) {
   if (error.message.includes('ENOENT: no such file or directory')) return true
   return false
@@ -69,8 +71,20 @@ async function getItemSubFolderInfos(itemPath) {
   else return ['application/json', await getFolderInfos(itemPath)]
 }
 
+function createFolder(response, path, name) {
+  if (!alphaNumericRegEx.test(name)) return response.status(400).send(
+    "The folder's name is not valid. It must be alpha-numeric."
+  )
+
+  fs.mkdirSync(`${path}/${name}`)
+  response.status(201).json({
+    "message": "Folder perfetcly created."
+  })
+}
+
 module.exports = {
   getFolderInfos,
   getItemSubFolderInfos,
-  noSuchFileOrDirectoryError
+  noSuchFileOrDirectoryError,
+  createFolder
 } 
