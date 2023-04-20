@@ -2,65 +2,52 @@ const express = require('express')
 const utilsFuncs = require('./utils/funcs')
 const os = require('os')
 const fs = require('fs')
-
-const pathDoesntExistsJson = { "message": "This path does not exists." }
-const internalServerErrorJson = { "message": "Internal Server Error" }
+const path = require('path')
 
 const app = express()
 app.use(express.static('frontend'))
 app.use(express.json())
 
-app.get('/api/drive', async (request, response) => {
-  response.set('Content-Type', 'application/json')
+app.get('/api/drive', async (_, response) => {
 
-  try {
-    const driveInfos = await utilsFuncs.getFolderInfos(`${os.tmpdir()}`)
+  const driveInfos = await utilsFuncs.getFolderInfos(`${os.tmpdir()}`)
 
-    response.status(200).json(driveInfos)
-  } catch (error) {
-    if (utilsFuncs.noSuchFileOrDirectoryError(error)) response.status(404).json(pathDoesntExistsJson)
-    else response.status(500).json(internalServerErrorJson)
-  }
-  
+  response
+    .set('Content-Type', 'application/json')
+    .status(200)
+    .json(driveInfos)
 })
 
 app.post('/api/drive', (request, response) => {
   const name = request.query.name
-  const folderPath = `${os.tmpdir()}/${name}`
+  const folderPath = path.join(os.tmpdir(), name)
 
-  // Folder already exists
-  if (fs.existsSync(folderPath)) return response.status(400).send(
-    "This folder already exists."
-  )
+  if (fs.existsSync(folderPath)) return utilsFuncs.alreadyExistsResponse(response, 'folder')
   
   utilsFuncs.createFolder(response, os.tmpdir(), name)
 })
 
 app.get('/api/drive/:name', async (request, response) => {
   const name = request.params.name
+  const foDPath = path.join(os.tmpdir(), name)
   
-  try {
-    const [contentType, nameInfos] = await utilsFuncs.getItemSubFolderInfos(`${os.tmpdir()}/${name}`)
+  if (!fs.existsSync(foDPath)) return utilsFuncs.doesNotExistsResponse(response, 'path')
 
-    response
-      .status(200)
-      .set('Content-Type', contentType)
-      .send(nameInfos)
-  } catch (error) {
-    if (utilsFuncs.noSuchFileOrDirectoryError(error)) response.status(404).json(pathDoesntExistsJson)
-    else response.status(500).json(internalServerErrorJson)
-  }
+  const [contentType, nameInfos] = await utilsFuncs.getItemSubFolderInfos(foDPath)
+
+  response
+    .set('Content-Type', contentType)
+    .status(200)
+    .send(nameInfos)
 })
 
 app.post('/api/drive/:folder', (request, response) => {
   const folder = request.params.folder
-  const folderPath = `${os.tmpdir()}/${folder}`
   const name = request.query.name
+  const folderPath = path.join(os.tmpdir(), folder)
   
-  // Folder does not exists
-  if (!fs.existsSync(folderPath)) return response.status(404).json({
-    "message": "This folder does not exists."
-  })
+  if (!fs.existsSync(folderPath)) return utilsFuncs.doesNotExistsResponse(response, 'folder')
+  if (fs.existsSync(path.join(folderPath, name))) return utilsFuncs.alreadyExistsResponse(response, 'folder')
 
   utilsFuncs.createFolder(response, folderPath, name)
 })
