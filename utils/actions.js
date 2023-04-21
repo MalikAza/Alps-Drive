@@ -32,8 +32,9 @@ async function getFolderInfos(folderPath) {
 
 async function getItemSubFolderInfos(itemPath) {
   const item = fs.lstatSync(itemPath)
-  
+  // File handling
   if (!item.isDirectory()) return ['application/octet-stream', fs.readFileSync(itemPath, 'utf-8')]
+  // Folder handling
   else return ['application/json', await getFolderInfos(itemPath)]
 }
 
