@@ -1,6 +1,10 @@
 // Imports
 const http = require('http')
 const app = require('./app')
+const fs = require('fs')
+const { drivePath } = require('./utils/conf')
+
+if (!fs.existsSync(drivePath)) fs.mkdirSync(drivePath)
 
 /**
  * The function normalizes a given port value to either a valid integer or false.

@@ -1,9 +1,9 @@
 const multer = require('multer')
-const os = require('os')
+const { drivePath } = require('./conf')
 
 const storage = multer.diskStorage({
   destination: function(request, file, callback) {
-    callback(null, request.path.replace('/api/drive', os.tmpdir()))
+    callback(null, request.path.replace('/api/drive', drivePath))
   },
   filename: function(request, file, callback) {
     callback(null, file.originalname)

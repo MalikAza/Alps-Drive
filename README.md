@@ -9,6 +9,9 @@ npm install
 ```
 
 ## Run
+*The base drive's path would be the drive folder inside your OS temporary folder.*
+
+*If you want to place the drive's path elsewhere, you can change the const `drivePath` inside the `/utils/confs.js` file.*
 ```bash
 npm run dev
 ```
