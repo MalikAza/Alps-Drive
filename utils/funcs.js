@@ -1,7 +1,7 @@
 const fs = require('fs')
 const path = require('path')
 
-const alphaNumericRegEx = new RegExp('^[a-zA-Z]+$')
+const alphaNumericRegEx = new RegExp('^[a-zA-Z\-_\.0-9]+$')
 
 function _getItemInfos(currentPath, item) {
   // Defaults (folder) atrbs
