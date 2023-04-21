@@ -1,5 +1,6 @@
 const fs = require('fs')
 const path = require('path')
+const responses = require('./responses')
 
 const alphaNumericRegEx = new RegExp('^[a-zA-Z\-_\.0-9]+$')
 
@@ -37,7 +38,7 @@ async function getItemSubFolderInfos(itemPath) {
 }
 
 function createFolder(response, currentPath, name) {
-  if (!alphaNumericRegEx.test(name)) return notAlphaNumResponse(response, name)
+  if (!alphaNumericRegEx.test(name)) return responses.notAlphaNum(response, name)
 
   fs.mkdirSync(path.join(currentPath, name))
   response.status(201).json({
@@ -46,7 +47,7 @@ function createFolder(response, currentPath, name) {
 }
 
 function deleteFolder(response, currentPath, name) {
-  if (!alphaNumericRegEx.test(name)) return notAlphaNumResponse(response, name)
+  if (!alphaNumericRegEx.test(name)) return responses.notAlphaNum(response, name)
 
   fs.rmSync(path.join(currentPath, name), { recursive: true, force: true })
   response.status(200).json({
@@ -54,29 +55,9 @@ function deleteFolder(response, currentPath, name) {
   })
 }
 
-function doesNotExistsResponse(response, type) {
-  return response.status(404).json({
-    "message": `This ${type} does not exists.`
-  })
-}
-
-function alreadyExistsResponse(response, type) {
-  return response.status(400).send(
-    `This ${type} already exists.`
-  )
-}
-
-function notAlphaNumResponse(response, name) {
-  if (!alphaNumericRegEx.test(name)) return response.status(400).send(
-    "The folder's name is not valid. It must be alpha-numeric."
-  )
-}
-
 module.exports = {
   getFolderInfos,
   getItemSubFolderInfos,
   createFolder,
-  doesNotExistsResponse,
-  alreadyExistsResponse,
   deleteFolder
 } 
