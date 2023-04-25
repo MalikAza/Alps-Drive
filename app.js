@@ -47,14 +47,12 @@ app.put('/api/drive/*', (request, response) => {
 })
 
 // delete folder or file
-app.delete('/api/drive/*/:name', (request, response) => {
+app.delete('/api/drive/*', (request, response) => {
   const folderPath = path.join(drivePath, request.params['0'])
-  const name = request.params.name
 
-  if (!fs.existsSync(folderPath)) return responses.doesNotExists(response, 'folder')
-  if (!fs.existsSync(path.join(folderPath, name))) return responses.doesNotExists(response, 'folder')
+  if (!fs.existsSync(path.join(folderPath))) return responses.doesNotExists(response, 'folder')
 
-  actions.deleteFolder(response, folderPath, name)
+  actions.deleteFolder(response, folderPath)
 })
 
 module.exports = app

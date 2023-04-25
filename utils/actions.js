@@ -47,10 +47,8 @@ function createFolder(response, currentPath, name) {
   })
 }
 
-function deleteFolder(response, currentPath, name) {
-  if (!alphaNumericRegEx.test(name)) return responses.notAlphaNum(response, name)
-
-  fs.rmSync(path.join(currentPath, name), { recursive: true, force: true })
+function deleteFolder(response, currentPath) {
+  fs.rmSync(path.join(currentPath), { recursive: true, force: true })
   response.status(200).json({
     "message": "Folder perfectly deleted."
   })
