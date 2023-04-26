@@ -24,8 +24,12 @@ app.post('/api/drive/*', (request, response) => {
 // getting folder infos
 app.get('/api/drive/*', async (request, response) => {
   const foDPath = path.join(drivePath, request.params['0'])
+  const downloadingExt = request.query.type
 
   if (!fs.existsSync(foDPath)) return response.doesNotExists(response, 'path')
+  if (downloadingExt) {
+    return actions.createArchiveFromFolder(response, foDPath, downloadingExt)
+  }
 
   const [contentType, foDInfos] = await actions.getItemSubFolderInfos(foDPath)
 

@@ -1,6 +1,8 @@
+const os = require('os')
 const fs = require('fs')
 const path = require('path')
 const responses = require('./responses')
+const archiver = require('archiver')
 
 const alphaNumericRegEx = new RegExp('^[a-zA-Z\-_\.0-9]+$')
 
@@ -71,10 +73,25 @@ function renameFolder(response, currentPath, newName) {
   })
 }
 
+function createArchiveFromFolder(response, currentPath, type) {
+  const archive = archiver(type)
+  const archivePath = `${os.tmpdir()}/${currentPath.split('/').pop()}.${type}`
+  const output = fs.createWriteStream(archivePath)
+  archive.pipe(output)
+  archive.directory(currentPath)
+  archive.finalize()
+  try {
+    response.download(archivePath)
+  } catch (error) {
+    console.log(error)
+  }
+}
+
 module.exports = {
   getFolderInfos,
   getItemSubFolderInfos,
   createFolder,
   deleteFolder,
-  renameFolder
+  renameFolder,
+  createArchiveFromFolder
 } 
