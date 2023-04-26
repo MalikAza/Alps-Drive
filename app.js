@@ -35,15 +35,20 @@ app.get('/api/drive/*', async (request, response) => {
     .send(foDInfos)
 })
 
-// upload a file
+// upload a file or rename file/folder
 app.put('/api/drive/*', (request, response) => {
   const folderPath = path.join(drivePath, request.params['0'])
+  const newName = request.query.newName
 
   if (!fs.existsSync(folderPath)) return responses.doesNotExists(response, 'folder')
-
-  utilsMulter.upload(request, response, (error) => {
-    utilsMulter.fileCreationResponse(request, response, error)
-  })
+  if (!newName) {
+    utilsMulter.upload(request, response, (error) => {
+      utilsMulter.fileCreationResponse(request, response, error)
+    })
+  } else {
+    actions.renameFolder(response, folderPath, newName)
+  }
+  
 })
 
 // delete folder or file

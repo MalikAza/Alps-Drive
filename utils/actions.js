@@ -54,9 +54,27 @@ function deleteFolder(response, currentPath) {
   })
 }
 
+function renameFolder(response, currentPath, newName) {
+  if (!alphaNumericRegEx.test(newName)) return responses.notAlphaNum(response, newName)
+
+  const pathWOLastItem = currentPath.split('/').slice(0, -1).join('/')
+  const pathLastItem = fs.lstatSync(currentPath)
+  let newPath = `${pathWOLastItem}/${newName}`
+  
+  if (!pathLastItem.isDirectory()) {
+    newPath += `.${currentPath.split('.').pop()}`
+  }
+
+  fs.renameSync(currentPath, newPath)
+  response.status(200).json({
+    "message": "Folder perfectly renamed."
+  })
+}
+
 module.exports = {
   getFolderInfos,
   getItemSubFolderInfos,
   createFolder,
-  deleteFolder
+  deleteFolder,
+  renameFolder
 } 
