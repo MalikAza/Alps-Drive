@@ -73,18 +73,28 @@ function renameFolder(response, currentPath, newName) {
   })
 }
 
-function createArchiveFromFolder(response, currentPath, type) {
-  const archive = archiver(type)
-  const archivePath = `${os.tmpdir()}/${currentPath.split('/').pop()}.${type}`
+async function createArchiveFromFolder(currentPath, type) {
+  const archivePath = `${currentPath}.${type}`
+
+  if (fs.existsSync(archivePath)) return archivePath
+
+  const archive = archiver(type, { zlib: { level: 9 }})
   const output = fs.createWriteStream(archivePath)
-  archive.pipe(output)
-  archive.directory(currentPath)
-  archive.finalize()
-  try {
-    response.download(archivePath)
-  } catch (error) {
-    console.log(error)
-  }
+  
+  action = new Promise((resolve, reject) => {
+    archive
+      .directory(currentPath, false)
+      .on('error', err => reject(err))
+      .pipe(output)
+
+    output.on('close', () => {
+      resolve()
+    })
+    archive.finalize()
+  })
+  await action
+
+  return archivePath
 }
 
 module.exports = {
@@ -93,5 +103,5 @@ module.exports = {
   createFolder,
   deleteFolder,
   renameFolder,
-  createArchiveFromFolder
+  createArchiveFromFolder,
 } 

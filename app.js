@@ -10,6 +10,12 @@ const app = express()
 app.use(express.static('frontend'))
 app.use(express.json())
 
+// Force disallowing cross-origins
+app.use((req, res, next) => {
+  res.setHeader('Access-Control-Allow-Origin', 'http://localhost:3000')
+  next()
+})
+
 // create a folder
 app.post('/api/drive/*', (request, response) => {
   const folderPath = path.join(drivePath, request.params['0'])
@@ -21,14 +27,18 @@ app.post('/api/drive/*', (request, response) => {
   actions.createFolder(response, folderPath, name)
 })
 
-// getting folder infos
+// getting folder infos or download folder as zip/tar
 app.get('/api/drive/*', async (request, response) => {
   const foDPath = path.join(drivePath, request.params['0'])
   const downloadingExt = request.query.type
 
-  if (!fs.existsSync(foDPath)) return response.doesNotExists(response, 'path')
+  if (!fs.existsSync(foDPath)) return responses.doesNotExists(response, 'path')
   if (downloadingExt) {
-    return actions.createArchiveFromFolder(response, foDPath, downloadingExt)
+    const archivePath = await actions.createArchiveFromFolder(foDPath, downloadingExt)
+
+    return response
+      .status(200)
+      .download(archivePath)
   }
 
   const [contentType, foDInfos] = await actions.getItemSubFolderInfos(foDPath)

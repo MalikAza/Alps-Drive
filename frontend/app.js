@@ -55,7 +55,7 @@ Vue.component('drive-item', {
     template: '<li class="drive-item flex-horizontal">' +
         '<div class="drive-item-action alert" v-on:click="del" title="delete"><i class="far fa-trash-alt"></i></div>' +
         '<div class="drive-item-action alert" v-on:click="rename" title="rename"><i class="fa fa-pen"></i></div>' +
-        '<div class="drive-item-action alert" v-if="item.isFolder" v-on:click="download" title="download"><i class="fas fa-download"></i></div>' +
+        `<a class="drive-item-action alert" v-if="item.isFolder" title="folder" target="_blank" :href="download"><i class="fas fa-download"></i></a>` +
         '<drive-item-folder v-if="item.isFolder" v-bind:item="item"/>' +
         '<drive-item-file v-if="!item.isFolder" v-bind:item="item"/>' +
         '<div class="msg-error">{{message}}</div>' +
@@ -64,6 +64,9 @@ Vue.component('drive-item', {
     data: () => ({
         message: '',
     }),
+    computed: {
+        download() { return buildItemUrl(`${this.item.name}?type=zip`) }
+    },
     methods: {
         del() {
             axios.delete(buildItemUrl(this.item.name))
@@ -86,16 +89,6 @@ Vue.component('drive-item', {
                     this.message = error.response.data;
                 })
         },
-        download() {
-            axios.get(buildItemUrl(`${this.item.name}?type=zip`))
-                .then(() => {
-                    this.message = '';
-                })
-                .then(() => loadDriveItems())
-                .catch(error => {
-                    this.message = error.response.data
-                })
-        }
     },
 });
 
