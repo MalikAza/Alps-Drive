@@ -5,14 +5,24 @@ const path = require('path')
 const utilsMulter = require('./utils/multer')
 const responses = require('./utils/responses')
 const { drivePath } = require('./utils/conf')
+const { requestLogger } = require('./utils/logger')
+const { info, error } = require('console')
 
 const app = express()
 app.use(express.static('frontend'))
 app.use(express.json())
 
-// Force disallowing cross-origins
+// Force disallowing cross-origins & logging
 app.use((req, res, next) => {
   res.setHeader('Access-Control-Allow-Origin', 'http://localhost:3000')
+
+  const reqInfo = {
+    ip: req.ip.split(':').pop(),
+    method: req.method,
+    path: req.originalUrl,
+  }
+
+  requestLogger.info(JSON.stringify(reqInfo))
   next()
 })
 
