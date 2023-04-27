@@ -57,6 +57,8 @@ function deleteFolder(response, currentPath) {
 }
 
 function renameFolder(response, currentPath, newName) {
+  if (newName == 'null') return response.status(204).send()
+
   if (!alphaNumericRegEx.test(newName)) return responses.notAlphaNum(response, newName)
 
   const pathWOLastItem = currentPath.split('/').slice(0, -1).join('/')
