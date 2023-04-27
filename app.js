@@ -55,7 +55,7 @@ app.put('/api/drive/*', (request, response) => {
   const newName = request.query.newName
 
   if (!fs.existsSync(folderPath)) return responses.doesNotExists(response, 'folder')
-  if (!newName) {
+  if (request.headers['content-type'] && request.headers['content-type'].includes('multipart/form-data')) {
     utilsMulter.upload(request, response, (error) => {
       utilsMulter.fileCreationResponse(request, response, error)
     })
