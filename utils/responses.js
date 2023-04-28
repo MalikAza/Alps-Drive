@@ -10,7 +10,7 @@ function alreadyExists(response, type) {
   )
 }
   
-function notAlphaNum(response, name) {
+function notAlphaNum(response) {
   return response.status(400).send(
     "The folder's name is not valid. It must be alpha-numeric."
   )

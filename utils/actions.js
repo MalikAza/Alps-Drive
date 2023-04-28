@@ -59,7 +59,7 @@ function deleteFolder(response, currentPath) {
 function renameFolder(response, currentPath, newName) {
   if (newName === 'null' || !newName) return response.status(204).send()
 
-  if (!alphaNumericRegEx.test(newName)) return responses.notAlphaNum(response, newName)
+  if (!alphaNumericRegEx.test(newName)) return responses.notAlphaNum(response)
 
   const pathWOLastItem = currentPath.split('/').slice(0, -1).join('/')
   const pathLastItem = fs.lstatSync(currentPath)
@@ -76,7 +76,8 @@ function renameFolder(response, currentPath, newName) {
 }
 
 async function createArchiveFromFolder(currentPath, type) {
-  const archivePath = `${currentPath}.${type}`
+  const name = currentPath.split('/').pop()
+  const archivePath = `${path.join(os.tmpdir(), name)}.${type}`
 
   if (fs.existsSync(archivePath)) return archivePath
 

@@ -6,7 +6,6 @@ const utilsMulter = require('./utils/multer')
 const responses = require('./utils/responses')
 const { drivePath } = require('./utils/conf')
 const { requestLogger } = require('./utils/logger')
-const { info, error } = require('console')
 
 const app = express()
 app.use(express.static('frontend'))
@@ -22,7 +21,11 @@ app.use((req, res, next) => {
     path: req.originalUrl,
   }
 
-  requestLogger.info(JSON.stringify(reqInfo))
+  if (reqInfo.ip !== '1' || !'127.0.0.1') {
+    return requestLogger.warn(JSON.stringify(reqInfo))
+  } else {
+    requestLogger.info(JSON.stringify(reqInfo))
+  }
   next()
 })
 
